@@ -1,0 +1,100 @@
+# Growtopia Private Server Makefile
+# Cross-platform build system
+
+# Compiler
+CXX = g++
+
+# Compiler flags
+CXXFLAGS = -std=c++17 -Wall -Wextra -O2
+
+# Detect OS
+ifeq ($(OS),Windows_NT)
+    # Windows specific
+    LDFLAGS = -lws2_32
+    TARGET = growtopia_server.exe
+    RM = del /Q
+    MKDIR = mkdir
+    PATHSEP = \\
+else
+    # Linux/Unix specific
+    LDFLAGS = -lpthread
+    TARGET = growtopia_server
+    RM = rm -f
+    MKDIR = mkdir -p
+    PATHSEP = /
+endif
+
+# Directories
+SRCDIR = .
+SERVERDIR = server
+UTILSDIR = utils
+PROTOCOLDIR = protocol
+OBJDIR = obj
+
+# Source files
+SOURCES = main.cpp \
+          $(SERVERDIR)/Server.cpp \
+          $(SERVERDIR)/Client.cpp \
+          $(UTILSDIR)/Logger.cpp \
+          $(PROTOCOLDIR)/Packet.cpp
+
+# Object files
+OBJECTS = $(SOURCES:%.cpp=$(OBJDIR)/%.o)
+
+# Default target
+all: $(TARGET)
+
+# Create target executable
+$(TARGET): $(OBJECTS)
+	$(CXX) $(OBJECTS) -o $(TARGET) $(LDFLAGS)
+
+# Test client
+test_client: test_client.cpp
+ifeq ($(OS),Windows_NT)
+	$(CXX) $(CXXFLAGS) test_client.cpp -o test_client.exe -lws2_32
+else
+	$(CXX) $(CXXFLAGS) test_client.cpp -o test_client
+endif
+
+# Compile source files to object files
+$(OBJDIR)/%.o: %.cpp
+	@$(MKDIR) $(dir $@) 2>/dev/null || true
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# Clean build files
+clean:
+ifeq ($(OS),Windows_NT)
+	if exist $(OBJDIR) rmdir /s /q $(OBJDIR)
+	if exist $(TARGET) del /q $(TARGET)
+	if exist test_client.exe del /q test_client.exe
+else
+	$(RM) -r $(OBJDIR)
+	$(RM) $(TARGET)
+	$(RM) test_client
+endif
+
+# Create directories
+$(OBJDIR):
+	$(MKDIR) $(OBJDIR)$(PATHSEP)$(SERVERDIR)
+	$(MKDIR) $(OBJDIR)$(PATHSEP)$(UTILSDIR)
+	$(MKDIR) $(OBJDIR)$(PATHSEP)$(PROTOCOLDIR)
+
+# Install dependencies (Ubuntu)
+install-deps-ubuntu:
+	sudo apt update
+	sudo apt install -y build-essential g++ make
+
+# Install dependencies (Windows - requires MSYS2/MinGW)
+install-deps-windows:
+	@echo "Please install MSYS2 and MinGW-w64 from https://www.msys2.org/"
+	@echo "Then run: pacman -S mingw-w64-x86_64-gcc mingw-w64-x86_64-make"
+
+# Run the server
+run: $(TARGET)
+	./$(TARGET)
+
+# Debug build
+debug: CXXFLAGS += -g -DDEBUG
+debug: $(TARGET)
+
+.PHONY: all clean install-deps-ubuntu install-deps-windows run debug test_client
