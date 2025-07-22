@@ -54,6 +54,7 @@ public:
     
     bool initialize();
     void run();
+    void runDaemon();
     void stop();
     
     void broadcastPacket(const std::vector<uint8_t>& packet, std::shared_ptr<Client> excludeClient = nullptr);

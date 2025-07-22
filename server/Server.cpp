@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <ctime>
+#include <chrono>
 
 Server::Server(int port) : listenSocket(INVALID_SOCKET), port(port), running(false) {
 #ifdef _WIN32
@@ -74,6 +75,20 @@ void Server::run() {
     std::cin.get();
     
     stop();
+}
+
+void Server::runDaemon() {
+    running = true;
+    
+    // Start accept thread
+    acceptThread = std::thread(&Server::acceptClients, this);
+    
+    Logger::info("Server is running in daemon mode...");
+    
+    // Keep running until stop() is called
+    while (running) {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
 }
 
 void Server::stop() {
