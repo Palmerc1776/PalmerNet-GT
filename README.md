@@ -125,6 +125,55 @@ Currently, the server uses hardcoded settings. Future versions will include:
 └── Makefile/CMakeLists.txt # Build systems
 ```
 
+## Deployment
+
+### GitHub Setup
+
+This project is configured for easy deployment using Git and GitHub.
+
+#### Initial Setup on VPS:
+```bash
+# Clone the repository
+git clone https://github.com/Palmerc1776/growtopia-server.git
+cd growtopia-server
+
+# Make deployment script executable
+chmod +x deploy.sh
+
+# Run initial deployment
+./deploy.sh
+```
+
+#### Updating the Server:
+```bash
+# Simply run the deployment script
+./deploy.sh
+```
+
+The deployment script will:
+- Pull the latest changes from GitHub
+- Backup your config.ini file
+- Stop the running server (if applicable)
+- Build the updated code
+- Restore your configuration
+
+#### Manual Deployment:
+```bash
+# Pull latest changes
+git pull origin main
+
+# Build the project
+make clean && make
+
+# Restart your server
+```
+
+### Windows Development:
+```cmd
+# Pull and build updates
+deploy.bat
+```
+
 ## Development
 
 This is a basic foundation for a Growtopia private server. To extend it:
@@ -134,6 +183,14 @@ This is a basic foundation for a Growtopia private server. To extend it:
 3. Add item database
 4. Create player authentication
 5. Add game mechanics
+
+### Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature-name`
+3. Make your changes and commit: `git commit -m "Add feature"`
+4. Push to your fork: `git push origin feature-name`
+5. Create a Pull Request
 
 ## License
 
