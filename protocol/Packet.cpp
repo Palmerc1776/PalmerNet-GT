@@ -103,7 +103,7 @@ GamePacket PacketBuilder::parsePacket(const std::vector<uint8_t>& data) {
 }
 
 std::vector<uint8_t> PacketBuilder::createLoginResponse(bool success, const std::string& message) {
-    std::string response = "action|log\nmsg|" + (success ? "Login successful!" : "Login failed!") + 
+    std::string response = std::string("action|log\nmsg|") + (success ? "Login successful!" : "Login failed!") + 
                           (message.empty() ? "" : "\n" + message);
     return createStringPacket(response);
 }

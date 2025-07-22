@@ -6,7 +6,7 @@
 #include <cstdlib>
 #include <ctime>
 
-Server::Server(int port) : port(port), running(false), listenSocket(INVALID_SOCKET) {
+Server::Server(int port) : listenSocket(INVALID_SOCKET), port(port), running(false) {
 #ifdef _WIN32
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
@@ -190,7 +190,7 @@ void Server::broadcastPacket(const std::vector<uint8_t>& packet, std::shared_ptr
 }
 
 size_t Server::getClientCount() const {
-    std::lock_guard<std::mutex> lock(clientsMutex);
+    std::lock_guard<std::mutex> lock(const_cast<std::mutex&>(clientsMutex));
     return clients.size();
 }
 
