@@ -134,8 +134,8 @@ This project is configured for easy deployment using Git and GitHub.
 #### Initial Setup on VPS:
 ```bash
 # Clone the repository
-git clone https://github.com/Palmerc1776/growtopia-server.git
-cd growtopia-server
+git clone https://github.com/Palmerc1776/PalmerNet-GT.git
+cd PalmerNet-GT
 
 # Make deployment script executable
 chmod +x deploy.sh
