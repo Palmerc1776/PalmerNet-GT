@@ -155,9 +155,8 @@ void Server::acceptClients() {
 void Server::handleClient(std::shared_ptr<Client> client) {
     Logger::info("Handling client: " + client->getIP());
     
-    // Send welcome message
-    auto welcomePacket = PacketBuilder::createStringPacket("action|log\nmsg|Welcome to Growtopia Private Server!");
-    client->sendPacket(welcomePacket);
+    // Don't send welcome packet immediately - wait for client handshake
+    Logger::debug("Waiting for client handshake...");
     
     while (running && client->isConnected()) {
         auto packetData = client->receivePacket();
@@ -210,7 +209,21 @@ size_t Server::getClientCount() const {
 }
 
 void Server::handleStringPacket(std::shared_ptr<Client> client, const std::string& message) {
-    Logger::debug("Processing string packet: " + message);
+    Logger::info("Processing string packet from " + client->getIP() + ": " + message);
+    
+    // Handle initial connection request (when client first connects)
+    if (message.find("requestedName|") != std::string::npos || message.find("tankIDName|") != std::string::npos) {
+        Logger::info("Initial connection/login request from " + client->getIP());
+        
+        // Send basic server response to allow connection
+        auto response = PacketBuilder::createStringPacket("type|onSuperMainStartAcceptLogon\nUBI_CONNECT_LOBBY_ID|0\nserver|127.0.0.1\nport|17091\ntype|onSuperMainStartAcceptLogon\nlogon_url|127.0.0.1\ntoken|1\nuser|2\nprotocol|171\nhash|rt\nfz|12345678\nf|1\ncp|12345\nbeta_server|1\ngame_version|4.54");
+        client->sendPacket(response);
+        
+        // Send welcome message
+        auto welcome = PacketBuilder::createStringPacket("action|log\nmsg|`2Welcome to the Private Server!``\naction|log\nmsg|`9Server is running and ready!``");
+        client->sendPacket(welcome);
+        return;
+    }
     
     // Parse action-based messages (Growtopia protocol)
     if (message.find("action|") == 0) {
